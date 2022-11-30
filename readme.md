@@ -1,7 +1,7 @@
 
 # Declarative Scheduling and Freshness Policies 
 
-Using code to define what you want to exist, not how it should be created, greatly simplifies data engineering pipelines. The two main goals of an orchestrator are to run things at the correct time and in the correct order. Dagster enables both parts of declarative orchestration. Dagster assets let you define what should exist (correct order) and freshness policies let you define when they should exist (correct time).
+Using code to define _what_ you want to exist, not _how_ it should be created, greatly simplifies data engineering pipelines. The two main goals of an orchestrator are to run things at the correct time and in the correct order. Dagster enables both parts of orchestration to be declarative. Dagster assets let you define what should exist (correct order) and freshness policies let you define when they should exist (correct time).
 
 ## Understanding Freshness Policies
 
@@ -165,6 +165,6 @@ Here is where the reconciliation sensor and freshness policies become really pow
 
 TODO: Add image of C being late, then image of A and C and being fresh, C marked as on-time
 
-<aside> After A is updated, our reconciliation sensor is still at work, and it will update B in order to fulfill B's declaration that B should always be as up-to-date as A. </aside>
+| Aside: After A is updated, our reconciliation sensor is still at work, and it will update B in order to fulfill B's declaration that B should always be as up-to-date as A.
 
 Our data assets are now fully declarative. You tell Dagster how fresh C should be and Dagster does the rest. Asset A is updated when it needs to be, not any more or less frequent. This declarative scheduling simplifies how data pipelines are built, and it helps data engineers meet the needs of their stakeholders. Freshness policies can map to data SLAs. An executive dashboard with KPIs might have a strict SLA and freshness policy with a low lag time, whereas a monthly summary may run only once a month. Dagster sorts out when the assets upstream of those datasets should run.
