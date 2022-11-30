@@ -168,3 +168,5 @@ TODO: Add image of C being late, then image of A and C and being fresh, C marked
 > Aside: After A is updated, our reconciliation sensor is still at work, and it will update B in order to fulfill B's declaration that B should always be as up-to-date as A. So updating C is updating B as declared, but perhaps not as expected? In a real pipeline B might have its own freshness policy,
 
 Our data assets are now fully declarative. You tell Dagster how fresh C should be and Dagster does the rest. Asset A is updated when it needs to be, not any more or less frequent. This declarative scheduling simplifies how data pipelines are built, and it helps data engineers meet the needs of their stakeholders. Freshness policies can map to data SLAs. An executive dashboard with KPIs might have a strict SLA and freshness policy with a low lag time, whereas a monthly summary may run only once a month. Dagster sorts out when the assets upstream of those datasets should run.
+
+TODO: Add a final discussion on asset versioning (e.g. what happens when code changes?)
