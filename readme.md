@@ -79,7 +79,7 @@ def my_repo():
     ]
 ```
 
-In this example we have added a reconciliation sensor and modified our job only target A. The result is that whenever A is updated by our scheduled job B is marked stale and then updated. This approach is more declarative, we are stating that "B should be as up-to-date as its dependencies" and Dagster figures out when B needs to run. 
+In this example we have added a reconciliation sensor and modified our job to only target A. The result is that whenever A is updated by our scheduled job B is marked stale and then updated. This approach is more declarative, we are stating that "B should be as up-to-date as its dependencies" and Dagster figures out when B needs to run. 
 
 ![](freshness_2.png)
 
@@ -127,13 +127,13 @@ def my_repo():
     ]
 ```
 
-One way to think about a Freshness policy is that it adds a tolerance to the reconciliation sensor. When A is updated, the reconciliation sensor immediately knows that B is stale and then runs it. The freshness policy tells the reconciliation sensor that C can tolerate being stale for up to 2 minutes. In this case, C will be updated approximately 2 minutes after A has updated.
+One way to think about a freshness policy is that it adds a tolerance to the reconciliation sensor. When A is updated, the reconciliation sensor immediately knows that B is stale and then runs it. The freshness policy tells the reconciliation sensor that C can tolerate being stale for up to 2 minutes. In this case, C will be updated approximately 2 minutes after A has updated.
 
 1. First A is updated by the schedule. C is marked stale but is not violating the freshness policy:
 
 ![](freshness_3a.png)
 
-2. After 2 minutes, the C is marked late because the freshness policy is violated. A run is started to update C.
+2. After 2 minutes, C is marked late because the freshness policy is violated. A run is started to update C.
 
 ![](freshness_3b.png)
 
@@ -226,13 +226,13 @@ def my_repo():
 
 When multiple freshness policies exist Dagster figures out the minimal amount of work needed to meet all of the policies. In this example, A is refreshed every 2 minutes by C, so B can be refreshed without re-running A again. In contrast, an imperative scheduler would redundantly run A for each run of B. Declarative scheduling reduces the work done by the scheduler, but more importantly, it reduces the work done by the data engineer too!
 
-Our data assets are now fully declarative. You tell Dagster how fresh C should be and Dagster does the rest. Asset A is updated when it needs to be, not any more or less frequent. This declarative scheduling simplifies how data pipelines are built, and it helps data engineers meet the needs of their stakeholders. Freshness policies can map to data SLAs. An executive dashboard with KPIs might have a strict SLA and freshness policy with a low lag time, whereas a monthly summary may run only once a month. Dagster sorts out when the assets upstream of those datasets should run.
+Our data assets are now fully declarative. You tell Dagster how fresh C should be and Dagster does the rest. Asset A is updated when it needs to be, not any more or less frequently. This declarative scheduling simplifies how data pipelines are built, and it helps data engineers meet the needs of their stakeholders. Freshness policies can map to data SLAs. An executive dashboard with KPIs might have a strict SLA and freshness policy with a low lag time, whereas a monthly summary may run only once a month. Dagster sorts out when the assets upstream of those datasets should run.
 
 ## Code Changes
 
 One final concept is important when considering how assets become stale. So far this guide has focused on time passing and assets becoming stale because new data is available. Assets can also become stale if their _definition_ changes because you have updated your code. 
 
-In Dagster it is possible to indicate that an asset is stale by updating it's `op_version`.
+In Dagster it is possible to indicate that an asset is stale by updating it's `op_version`. Existing code in production might be labelled with version 0.1:
 
 
 ```python
@@ -266,9 +266,12 @@ def my_repo():
     ]
 
 ```
+
+These assets would be managed by the reconciliation scheduler and be considered fresh when all three have been materialized: 
+
 ![](freshness_5a.png)
 
-If we make a substantial change to our code, we can add or increment the `op_version`:
+If we make a substantial change to our code, we can increment the `op_version`:
 
 ```python
 from dagster import asset, repository, define_asset_job, AssetSelection, ScheduleDefinition, build_asset_reconciliation_sensor, FreshnessPolicy
@@ -300,7 +303,7 @@ def my_repo():
         [update_sensor]
     ]
 ```
-When the asset definitions are updated in Dagster, the changed asset and its downstream assets will be flagged as stale.
+When the new asset definitions are loaded, B and the downstream asset C will be flagged as stale.
 
 ![](freshness_5b.png)
 
