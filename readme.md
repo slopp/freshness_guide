@@ -7,6 +7,8 @@ Using code to define _what_ you want to exist, not _how_ it should be created, g
 
 To understand declarative scheduling and freshness policies it helps to run a few experiments. Let's begin with a regular schedule:
 
+> Note, to run this code, follow [these instructions](https://docs.dagster.io/master/getting-started/hello-dagster).
+
 ```python
 from dagster import asset, repository, define_asset_job, AssetSelection, ScheduleDefinition
 
